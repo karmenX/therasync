@@ -1,0 +1,70 @@
+patient selection
+
+/* Patient Selector */
+.patient-selector {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    padding: 16px;
+    margin-bottom: 24px;
+}
+
+.patient-selector h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 12px;
+}
+
+.patient-selector-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.patient-selector-button {
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.patient-selector-button.active {
+    background-color: #00aff0;
+    color: white;
+}
+
+.patient-selector-button:not(.active) {
+    background-color: #e5e7eb;
+    color: #374151;
+}
+
+.patient-selector-button:not(.active):hover {
+    background-color: #d1d5db;
+}
+
+
+
+JSX:
+ {/* Patient Selector */}
+                <div className="patient-selector">
+                    <h3>Select Patient</h3>
+                    <div className="patient-selector-buttons">
+                        {patients.map((patient) => (
+                            <button
+                                key={patient.id}
+                                onClick={() => handlePatientSelect(patient)}
+                                className={`patient-selector-button ${
+                                    selectedPatient.id === patient.id ? 'active' : ''
+                                }`}
+                            >
+                                {patient.name}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+
+patient list olsn

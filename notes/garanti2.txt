@@ -1,0 +1,186 @@
+.videocall-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100%;
+    background-color: #ffffff;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.videocall-video-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
+    height: calc(100vh - 120px);
+    width: 100%;
+    flex: 1;
+    padding: 40px 20px; /* Reduce horizontal padding */
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.videocall-video-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 50%;
+    height: 100%;
+}
+
+.videocall-video {
+    border: 4px solid #00aff0;
+    border-radius: 15px;
+    overflow: hidden;
+    width: 100%;
+    aspect-ratio: 22/17;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #757575;
+    position: relative;
+}
+
+
+.videocall-video video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover   ; /* Shows entire video within the box */
+    border-radius: 11px;
+
+}
+
+/* For the waiting message */
+.videocall-video div {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem;
+    color: white;
+    background-color: #757575;
+    border-radius: 11px;
+    font-weight: 500;
+}
+
+.videocall-video-label {
+    margin-top: 15px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #00aff0;
+    text-align: center;
+}
+
+
+.videocall-action-bar {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    height: 70px;
+    background: linear-gradient(135deg, #00aff0 0%, #0099cc 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    padding: 0 30px;
+    border-radius: 20px;
+    max-width: calc(100vw - 40px);
+    box-shadow: 0 8px 32px rgba(0, 175, 240, 0.4);
+    z-index: 1000;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.videocall-action-icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+/* arranging the sizes of the icons */
+.videocall-action-icon[src*="micOn"]{
+    transform: scale(1.8);
+}
+.videocall-action-icon[src*="micOff"]{
+    transform: scale(1.8);
+}
+.videocall-action-icon[src*="camOn"]{
+    transform: scale(1.5);
+}
+.videocall-action-icon[src*="camOff"]{
+    transform: scale(1.5);
+}
+.videocall-action-icon[src*="screen_share"] {
+    transform: scale(1.3);
+}
+.videocall-action-icon[src*="end_call"] {
+    transform: scale(1.6);
+}
+
+.videocall-action-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 18px;
+    background-color: rgba(255, 255, 255, 0.95);
+    color: #00aff0;
+    border: none;
+    border-radius: 25px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 120px;
+    text-align: center;
+    white-space: nowrap;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.videocall-action-button:hover {
+    background-color: rgba(255, 255, 255, 1);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 175, 240, 0.3);
+    color: #0080cc;
+}
+
+.videocall-action-button:active {
+    transform: translateY(0px);
+}
+
+.videocall-action-button.primary {
+    background-color: rgba(255, 255, 255, 0.95);
+    color: #00aff0;
+}
+
+.videocall-action-button.danger {
+    background-color: #C41E3A ;
+    color: white;
+}
+
+.videocall-action-button.danger:hover {
+    background-color: #C41E3A ;
+    color: white;
+    box-shadow: 0 6px 20px rgba(255, 68, 68, 0.4);
+}
+.videocall-action-button.muted {
+    background-color: #0077a4;
+}
+
+.videocall-action-button.muted:hover {
+    background-color: #0077a4;
+}
+
+.videocall-action-button.camera-off {
+    background-color: #0077a4;
+}
+
+.videocall-action-button.camera-off:hover {
+    background-color: #0077a4;
+}

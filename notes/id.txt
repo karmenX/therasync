@@ -1,0 +1,22 @@
+.myId {
+	margin-right: 5rem;
+	border-radius: 5px;
+	background: #ffffff; /* fallback for old browsers */
+	background: -webkit-linear-gradient(to right, #449522, #00aff0); /* Chrome 10-25, Safari 5.1-6 */
+	background: linear-gradient(
+		#c81935,
+		#b80586
+	); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+
+	padding: 2rem;
+	display: grid;
+	justify-content: center;
+	align-content: center;
+}
+
+.call-button {
+	text-align: center;
+	margin-top: 2rem;
+}
+
+

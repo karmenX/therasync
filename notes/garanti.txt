@@ -1,0 +1,701 @@
+css:
+
+.videocall-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background-color: #ffffff;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.videocall-video-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
+    height: calc(100vh - 140px);
+    width: 100%;
+    flex: 1;
+    padding: 40px 40px 40px 75px; /* Added more top padding to push videos down */
+}
+
+.videocall-video-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 45%;
+    height: 100%;
+}
+
+.videocall-video {
+    border: 4px solid #00aff0;
+    border-radius: 15px;
+    overflow: hidden;
+    width: 100%;
+    aspect-ratio: 22/17;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #757575;
+    position: relative;
+}
+
+
+.videocall-video video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover   ; /* Shows entire video within the box */
+    border-radius: 11px;
+
+}
+
+/* For the waiting message */
+.videocall-video div {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem;
+    color: white;
+    background-color: #757575;
+    border-radius: 11px;
+    font-weight: 500;
+}
+
+.videocall-video-label {
+    margin-top: 15px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #00aff0;
+    text-align: center;
+}
+
+
+.videocall-action-bar {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    height: 80px;
+    background: linear-gradient(135deg, #00aff0 0%, #0099cc 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    padding: 0 40px;
+    border-radius: 40px;
+    box-shadow: 0 8px 32px rgba(0, 175, 240, 0.4);
+    z-index: 1000;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.videocall-action-icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+/* arranging the sizes of the icons */
+.videocall-action-icon[src*="micOn"]{
+    transform: scale(1.8);
+}
+.videocall-action-icon[src*="micOff"]{
+    transform: scale(1.8);
+}
+.videocall-action-icon[src*="camOn"]{
+    transform: scale(1.5);
+}
+.videocall-action-icon[src*="camOff"]{
+    transform: scale(1.5);
+}
+.videocall-action-icon[src*="screen_share"] {
+    transform: scale(1.3);
+}
+.videocall-action-icon[src*="end_call"] {
+    transform: scale(1.6);
+}
+
+.videocall-action-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 18px;
+    background-color: rgba(255, 255, 255, 0.95);
+    color: #00aff0;
+    border: none;
+    border-radius: 25px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 120px;
+    text-align: center;
+    white-space: nowrap;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.videocall-action-button:hover {
+    background-color: rgba(255, 255, 255, 1);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 175, 240, 0.3);
+    color: #0080cc;
+}
+
+.videocall-action-button:active {
+    transform: translateY(0px);
+}
+
+.videocall-action-button.primary {
+    background-color: rgba(255, 255, 255, 0.95);
+    color: #00aff0;
+}
+
+.videocall-action-button.danger {
+    background-color: #9a0026 ;
+    color: white;
+}
+
+.videocall-action-button.danger:hover {
+    background-color: #9a0026 ;
+    color: white;
+    box-shadow: 0 6px 20px rgba(255, 68, 68, 0.4);
+}
+.videocall-action-button.muted {
+    background-color: #0077a4;
+}
+
+.videocall-action-button.muted:hover {
+    background-color: #0077a4;
+}
+
+.videocall-action-button.camera-off {
+    background-color: #0077a4;
+}
+
+.videocall-action-button.camera-off:hover {
+    background-color: #0077a4;
+}
+
+
+jsx:
+
+import React, { useEffect, useRef, useState } from "react";
+import Peer from "simple-peer";     //WebRTC bağlantı kütüphanesi
+import "./VideoCall.css";
+
+import micOn from "../assets/micOn.svg"
+import micOff from "../assets/micOff.svg"
+import camOn from "../assets/camOn.svg"
+import camOff from "../assets/camOff.svg"
+
+
+import share from "../assets/screen_share.svg"
+import endcall from "../assets/end_call.svg"
+
+function App() {
+    const [me, setMe] = useState("");   //Kullanıcının serverdaki IDsi
+    const [stream, setStream] = useState();
+    const [receivingCall, setReceivingCall] = useState(false);
+    const [caller, setCaller] = useState("");   //Arayan kişinin IDsi
+    const [callerSignal, setCallerSignal] = useState();     //WebRTC sinyal verisi
+    const [callAccepted, setCallAccepted] = useState(false);
+    const [idToCall, setIdToCall] = useState("");
+    const [callEnded, setCallEnded] = useState(false);
+    const [name, setName] = useState("");
+    const [socket, setSocket] = useState(null);     //sunucu ile WebSocket bağlantısı
+    const [isConnected, setIsConnected] = useState(false);
+    const [isCamOff,setIsCamOff] = useState(false);
+    const [isMicOff,setIsMicOff] = useState(false);
+
+    const myVideo = useRef();
+    const userVideo = useRef();
+    const connectionRef = useRef();     //WebRTC peer bağlantısı
+
+    useEffect(() => {
+
+
+        const ws = new WebSocket('ws://localhost:5000');    //  ws://localhost:5000 deki Websocket serverına bağlantı kur
+
+        ws.onopen = () => {
+            console.log('Connected to WebSocket server');
+            setIsConnected(true);
+        };
+
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            handleWebSocketMessage(data);
+        };
+
+        ws.onclose = () => {
+            console.log('Disconnected from WebSocket server');
+            setIsConnected(false);
+        };
+
+        ws.onerror = (error) => {
+            console.error('WebSocket error:', error);
+        };
+
+        setSocket(ws);
+
+
+        navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
+            setStream(stream);
+            if (myVideo.current) {
+                myVideo.current.srcObject = stream;
+            }
+        });
+
+
+        return () => {
+            if (ws.readyState === WebSocket.OPEN) {
+                ws.close();
+            }
+        };
+    }, []);
+
+    const handleWebSocketMessage = (data) => {
+        switch (data.type) {
+            case 'me':
+                setMe(data.id);
+                console.log('My ID:', data.id);
+                break;
+            case 'callUser':
+                setReceivingCall(true);
+                setCaller(data.from);
+                setName(data.name);
+                setCallerSignal(data.signal);
+                console.log('Incoming call from:', data.from);
+                break;
+            case 'callAccepted':
+                setCallAccepted(true);
+                if (connectionRef.current) {
+                    connectionRef.current.signal(data.signal);
+                }
+                break;
+            case 'callEnded':
+                setCallEnded(true);
+                setReceivingCall(false);
+                setCallAccepted(false);
+                if (connectionRef.current) {
+                    connectionRef.current.destroy();
+                }
+                break;
+            default:
+                console.log('Unknown message type:', data.type);
+        }
+    };
+
+    const sendMessage = (message) => {
+        if (socket && socket.readyState === WebSocket.OPEN) {
+            socket.send(JSON.stringify(message));
+        }
+    };
+
+    const answerCall = () => {
+        setCallAccepted(true);
+        const peer = new Peer({
+            initiator: false,
+            trickle: false,
+            stream: stream
+        });
+
+        peer.on("signal", (data) => {
+            sendMessage({
+                type: "answerCall",
+                signal: data,
+                to: caller
+            });
+        });
+
+        peer.on("stream", (stream) => {
+            if (userVideo.current) {
+                userVideo.current.srcObject = stream;
+            }
+        });
+
+        peer.signal(callerSignal);
+        connectionRef.current = peer;
+    };
+
+    const leaveCall = () => {
+        setCallEnded(true);
+        setCallAccepted(false);
+        setReceivingCall(false);
+
+        // Notify other peer about call end
+        sendMessage({
+            type: "leaveCall",
+            to: caller || idToCall
+        });
+
+        if (connectionRef.current) {
+            connectionRef.current.destroy();
+        }
+    };
+
+    const toggleMute = () => {
+        if (stream) {
+            stream.getAudioTracks().forEach(track => {
+                track.enabled = !track.enabled;
+            });
+            setIsMicOff(!isMicOff);
+        }
+    };
+
+    const toggleCamera = () => {
+        if (stream) {
+            stream.getVideoTracks().forEach(track => {
+                track.enabled = !track.enabled;
+            });
+            setIsCamOff(!isCamOff);
+        }
+    };
+
+    return (
+        <>
+            <div className="videocall-container">
+
+                <div className="videocall-video-container">
+                    <div className="videocall-video-box">
+                        <div className="videocall-video">
+                            {stream && <video  muted ref={myVideo} autoPlay />}
+                        </div>
+                    </div>
+                    <div className="videocall-video-box">
+                        <div className="videocall-video">
+                            {callAccepted && !callEnded ?
+                                <video  ref={userVideo} autoPlay /> :
+                                <div style={{
+                                    width: "400px",
+                                    height: "300px",
+                                    backgroundColor: "#757575",
+                                    display: "flex",
+                                    justifyContent: "center",
+                                    alignItems: "center"
+                                }}>
+                                    Waiting for patient...
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div className="videocall-call-controls">
+
+                        {receivingCall && !callAccepted && (
+                            <div className="videocall-incoming-call">
+                                <h3>{name} is calling...</h3>
+                                <button
+                                    onClick={answerCall}
+                                    style={{ padding: "10px 20px", backgroundColor: "#4caf50", color: "white", border: "none", borderRadius: "4px" }}
+                                >
+                                    Answer
+                                </button>
+                            </div>
+                        )}
+                    </div>
+
+
+                    <div className="videocall-action-bar">
+                <button
+                    className={`videocall-action-button ${isMicOff ? 'muted' : ''}`}
+                    onClick={toggleMute}
+                >
+                    <img
+                        src={isMicOff ? micOff : micOn}
+                        className="videocall-action-icon"
+                        alt={isMicOff ? "Unmute" : "Mute"}
+                    />
+                </button>
+
+                <button
+                    className={`videocall-action-button ${isCamOff ? 'camera-off' : ''}`}
+                    onClick={toggleCamera}
+                >
+                    <img
+                        src={isCamOff ? camOff : camOn}
+                        className="videocall-action-icon"
+                        alt={isCamOff ? "Turn Camera On" : "Turn Camera Off"}
+                    />
+                </button>
+                    <button className="videocall-action-button primary">
+                        <img src={share} className="videocall-action-icon" />
+                    </button>
+                    <button className="videocall-action-button danger" onClick={leaveCall}>
+                        <img src={endcall} className="videocall-action-icon"/>
+                    </button>
+                </div>
+            </div>
+        </>
+    );
+}
+
+export default App;
+
+
+
+
+Login JSX:
+
+import React, { useState } from 'react';
+import './LoginSignUp.css';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+
+import user_icon from '../assets/user.svg';
+import email_icon from '../assets/email.svg';
+import password_icon from '../assets/password.svg';
+import logo from '../assets/horizontallogo.png';
+import design from '../assets/design.png';
+
+const LoginSignUp = () => {
+  const ImageSize = { width: '25px', height: '25px' };
+  const ImageSize1 = { width: '400px', height: '100px' };
+  const ImageSize2 = { width: '600px', height: '500px' };
+
+  const [action, setAction] = useState("Login");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
+
+  const handleLogin = async () => {
+    try {
+      const response = await axios.post("/api/token/", {
+        username: username,
+        password: password,
+      });
+
+      const { access, refresh } = response.data;
+      localStorage.setItem("access", access);
+      localStorage.setItem("refresh", refresh);
+
+      // Kullanıcı bilgisi alınır
+      const meResponse = await axios.get("/api/me/", {
+        headers: {
+          Authorization: `Bearer ${access}`
+        }
+      });
+
+      const role = meResponse.data.user_type?.toLowerCase();
+
+      if (role === "psikolog") {
+        navigate("/psychologist");
+      } else if (role === "danisan") {
+        navigate("/patient");
+      } else {
+        setError("Rol tanımlanamadı.");
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Giriş başarısız. Lütfen kullanıcı adı ve şifreyi kontrol edin.");
+    }
+  };
+
+  return (
+    <div className="login-signup-page-container">
+      <div className="login-signup-logo-container">
+        <img style={ImageSize1} src={logo} alt="logo" />
+      </div>
+
+      <div className="login-signup-design-container">
+        <img style={ImageSize2} src={design} alt="tasarım" />
+      </div>
+
+      <div className='login-signup-container'>
+        <div className="login-signup-header">
+          <div className="login-signup-text">{action}</div>
+          <div className="login-signup-underline"></div>
+        </div>
+
+        <div className="login-signup-inputs">
+          {action === "Login" ? null : (
+            <div className="login-signup-input">
+              <img style={ImageSize} src={user_icon} alt="" />
+              <input type="text" placeholder="Ad Soyad" />
+            </div>
+          )}
+
+          <div className="login-signup-input">
+            <img style={ImageSize} src={email_icon} alt="" />
+            <input
+              type="text"
+              placeholder="Kullanıcı Adı"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+            />
+          </div>
+
+          <div className="login-signup-input">
+            <img style={ImageSize} src={password_icon} alt="" />
+            <input
+              type="password"
+              placeholder="Şifre"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
+        </div>
+
+        {error && <p style={{ color: "red", textAlign: "center" }}>{error}</p>}
+
+        {action === "Sign Up" ? null : (
+          <div className="login-signup-forgot-password">
+            Şifreni mi unuttun? <span>Buraya Tıkla!</span>
+          </div>
+        )}
+
+        <div className="login-signup-submit-container">
+          <div
+            className={`login-signup-submit ${action === "Sign Up" ? "" : "login-signup-gray"}`}
+            onClick={() => setAction("Sign Up")}
+          >
+            Kayıt Ol
+          </div>
+
+          <div
+            className={`login-signup-submit ${action === "Login" ? "" : "login-signup-gray"}`}
+            onClick={() => {
+              if (action === "Login") {
+                handleLogin();
+              } else {
+                setAction("Login");
+              }
+            }}
+          >
+            Giriş Yap
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default LoginSignUp;
+
+
+
+CSS:
+.login-signup-container {
+    display:flex;
+    flex-direction: column;
+    margin: auto;
+    margin-top: 50px;
+    margin-left: 175px;
+    width: 600px;
+    background: #ffffff;
+    padding-bottom: 20px;
+    padding-top: 175px;
+
+}
+
+.login-signup-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    margin: auto;
+}
+
+.login-signup-text{
+    color: #00aff0;
+    font-size: 40px;
+    font-weight: 500;
+}
+
+.login-signup-inputs{
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.login-signup-input{
+    display: flex;
+    align-items: center;
+    margin: auto;
+    width: 80%;
+    height: 35px;
+    background: #00aff0;
+    border-radius: 10px;
+}
+
+.login-signup-input img{
+    margin: 0px 10px;
+}
+
+.login-signup-input input{
+    height: 50px;
+    width: 400px;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: white;
+    font-size: 20px;
+}
+
+.login-signup-forgot-password{
+    padding-left: 65px;
+    margin-top: 20px;
+    color: black;
+    font-size: 15px;
+}
+.login-signup-forgot-password span{
+    color: #00aff0;
+    cursor: pointer;
+
+}
+
+.login-signup-submit-container{
+    display: flex;
+    gap: 30px;
+    margin: 35px;
+    justify-content: center;
+
+}
+.login-signup-submit{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 220px;
+    height: 50px;
+    color: white;
+    background: #00aff0;
+    border-radius: 10px;
+    font-size: 20px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.login-signup-gray{
+    background: #afadad;
+    color: white;
+}
+
+.login-signup-page-container{
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.login-signup-logo-container{
+    position: absolute;
+    top: 50px;
+    left: 20px;
+}
+
+.login-signup-design-container{
+    position: absolute;
+    top: 150px;
+    left: 900px;
+}
+
+.login-signup-input input::placeholder{
+    color: white;
+}
