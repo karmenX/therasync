@@ -1,0 +1,89 @@
+
+.navbar {
+  display: flex;
+  position: fixed;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #00aff0;
+  padding: 5px 30px;
+  width: 1000px;
+  left: 15%;
+  border-radius: 85px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  margin-top: -100px;
+
+
+}
+.logo {
+  height: 100px;
+  margin-top: 20px;
+  margin-left: 25px;
+  margin-right: 50px;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 30px; /* Adjust gap between items */
+  flex-grow: 1; /* Allow it to take available space */
+  padding-left: 20px; /* Optional: Add padding if needed */
+}
+
+
+.nav-links a {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: black;
+  font-weight: bold;
+  font-size: 16px;
+  gap: 25px; /* controls space between icon and text */
+}
+
+
+.profile-button {
+  background-color: #00aff0;
+  color: black;
+  font-weight: bold;
+  border-radius: 50%;
+  width: 85px;
+  height: 85px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 14px;
+  cursor: pointer;
+  margin-left: 1385px;
+  margin-top: -100px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+
+
+/* Add padding to main content to account for fixed navbar */
+.wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding-top: 64px; /* Height of navbar + some extra */
+}
+
+/* Improved Text Readability */
+.card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  color: #333; /* Dark text for better readability */
+}
+
+h1, h2, h3, h4 {
+  color: #00aff0; /* Blue for headings */
+  margin-top: 0;
+}
+
+/* Better contrast for secondary text */
+.next-sessions time,
+.tick p {
+  color: #666; /* Darker gray for better readability */
+}
